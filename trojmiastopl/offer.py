@@ -30,7 +30,7 @@ def get_title(offer_markup):
     """
     html_parser = BeautifulSoup(offer_markup, "html.parser")
     try:
-        return html_parser.find(id="ogl-title").text.strip()
+        return html_parser.find('h1').text.strip()
     except AttributeError:
         return
 
@@ -60,7 +60,8 @@ def parse_region(offer_markup):
     :rtype: dict
     """
     html_parser = BeautifulSoup(offer_markup, "html.parser")
-    parsed_address = html_parser.find(class_="address").find(class_="dd").contents
+    parsed_address = html_parser.find(id="show-address").find(class_="ogl__details__desc").contents
+    print(parsed_address)
     output = {"voivodeship": "Pomorskie", "city": None, "district": None}
     output["city"] = str(parsed_address[0]).replace("\xa0", "")
     # Just city
@@ -317,7 +318,7 @@ def parse_offer(url):
     if response is None:
         raise requests.HTTPError
     html_parser = BeautifulSoup(response.content, "html.parser")
-    offer_content = str(html_parser.find(class_="title-wrap"))
+    offer_content = str(html_parser.find(class_="form-heading__desc"))
     title = get_title(offer_content)
     if title is None:
         log.warning("Offer {0} is not available anymore.".format(url))
@@ -327,7 +328,7 @@ def parse_offer(url):
     date_details = str(html_parser.find(class_="ogl-info-wrap"))
     dates_id = parse_dates_and_id(date_details)
     description = parse_description(str(html_parser.find(class_="ogl-description")))
-    offer_content = str(html_parser.find(id="sidebar"))
+    offer_content = str(html_parser.find(class_="ogl__details ogl--details--left"))
     surface = get_surface(offer_content)
     flat_data = parse_flat_data(offer_content)
     address = parse_region(offer_content)

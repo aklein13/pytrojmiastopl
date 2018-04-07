@@ -26,11 +26,13 @@ def get_page_count(markup):
     """
 
     html_parser = BeautifulSoup(markup, "html.parser")
-    try:
-        return max(map(int, findall(r'\d+', html_parser.find(class_="navi-pages").text)))
-    except ValueError as e:
-        log.warning(e)
-        return 1
+    page_numbers = html_parser.find(class_='pagination__page').findAll('li')
+    pages = []
+    for page_number in page_numbers:
+        page_link = page_number.find('a')
+        if page_link and 'następna' not in page_link:
+            pages.append(int(page_link.text))
+    return max(pages) if len(pages) > 0 else 1
 
 
 def get_page_count_for_filters(category, region=None, **filters):
@@ -50,11 +52,13 @@ def get_page_count_for_filters(category, region=None, **filters):
     url = get_url(category, region, **filters)
     response = get_content_for_url(url)
     html_parser = BeautifulSoup(response.content, "html.parser")
-    try:
-        return max(map(int, findall(r'\d+', html_parser.find(class_="navi-pages").text)))
-    except ValueError as e:
-        log.warning(e)
-        return 1
+    page_numbers = html_parser.find(class_='pagination__page').findAll('li')
+    pages = []
+    for page_number in page_numbers:
+        page_link = page_number.find('a')
+        if page_link and 'następna' not in page_link:
+            pages.append(int(page_link.text))
+    return max(pages) if len(pages) > 0 else 1
 
 
 def parse_offer_url(markup):
@@ -79,7 +83,7 @@ def parse_available_offers(markup):
     :rtype: list
     """
     html_parser = BeautifulSoup(markup, "html.parser")
-    offers = html_parser.find_all(class_='ogl-head')
+    offers = html_parser.find_all(class_='list__item__content__title')
     parsed_offers = [parse_offer_url(str(offer)) for offer in offers if offer]
     return parsed_offers
 

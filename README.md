@@ -27,6 +27,3 @@ tox
 ```
 py.test tests.py -vv
 ```
-
-
-
